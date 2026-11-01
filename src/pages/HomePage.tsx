@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, ChevronDown, Compass, Lightbulb, MonitorPlay, Sparkles } from 'lucide-react'
+import { ArrowRight, ChevronDown, Compass, Lightbulb, MapPin, MonitorPlay, Sparkles } from 'lucide-react'
 import { HeroCredit, HeroPhoto } from '../components/media/HeroPhoto'
 import { RealPhoto } from '../components/media/RealPhoto'
 import { KgOutline } from '../components/map/KgOutline'
@@ -10,7 +10,8 @@ import { ProgressRing } from '../components/ui/ProgressRing'
 import { Reveal } from '../components/ui/Reveal'
 import { funFacts, headlineStats } from '../data/facts'
 import { modules } from '../data/lessons/modules'
-import { HOME_HERO_STRIP, isPhotoReady, modulePhotos, photoById } from '../data/images'
+import { HOME_HERO_STRIP, modulePhotos, photoById } from '../data/images'
+import { useAppStore } from '../store/useAppStore'
 import { useI18n } from '../hooks/useI18n'
 import { useProgress } from '../hooks/useProgress'
 
@@ -26,7 +27,8 @@ function SectionTitle({ title, lead }: { title: string; lead?: string }) {
 }
 
 export default function HomePage() {
-  const { t, tr } = useI18n()
+  const { t, tr, lang } = useI18n()
+  const setLang = useAppStore((s) => s.setLang)
   const nav = useNavigate()
   const prog = useProgress()
   const [fact, setFact] = useState(0)
@@ -43,8 +45,17 @@ export default function HomePage() {
         <HeroPhoto />
         <div className="relative mx-auto grid w-full max-w-7xl items-center gap-10 px-4 py-16 md:px-8 lg:grid-cols-[1.25fr_1fr]">
           <div>
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold backdrop-blur">
-              <Sparkles size={14} className="text-amber-300" /> {t('hero.badge')}
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5 flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold backdrop-blur">
+                <Sparkles size={14} className="text-amber-300" /> {t('hero.badge')}
+              </span>
+              <span className="inline-flex rounded-full border border-white/20 bg-black/25 p-0.5 text-xs font-bold backdrop-blur" role="group" aria-label="RU / KY">
+                {(['ru', 'ky'] as const).map((l) => (
+                  <button key={l} type="button" onClick={() => setLang(l)} aria-pressed={lang === l} className={`rounded-full px-3 py-1 transition ${lang === l ? 'bg-white text-navy' : 'text-white/80 hover:text-white'}`}>
+                    {l === 'ru' ? 'RU' : 'KY'}
+                  </button>
+                ))}
+              </span>
             </motion.div>
             <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.15 }} className="font-display text-4xl font-bold leading-[1.02] tracking-tight text-white drop-shadow-[0_2px_24px_rgba(0,0,0,.45)] sm:text-5xl md:text-6xl xl:text-[5.25rem]">
               {t('hero.title')}
@@ -64,7 +75,7 @@ export default function HomePage() {
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6 }} className="mt-10 hidden max-w-xl grid-cols-3 gap-3 sm:grid">
               {HOME_HERO_STRIP.map((id) => (
                 <div key={id} className="overflow-hidden rounded-2xl border border-white/15 shadow-xl">
-                  <RealPhoto id={id} className="aspect-[4/3] w-full" sizes="200px" lightbox={HOME_HERO_STRIP} zoom compact overlay="bottom">
+                  <RealPhoto id={id} className="aspect-[4/3] w-full" sizes="240px" lightbox={HOME_HERO_STRIP} zoom overlay="bottom">
                     <span className="pointer-events-none absolute bottom-1.5 left-2.5 right-2 truncate text-xs font-bold text-white">{tr(photoById[id].title)}</span>
                   </RealPhoto>
                 </div>
@@ -97,26 +108,29 @@ export default function HomePage() {
               const p = prog.perModule[m.id]
               return (
                 <Reveal key={m.id} delay={i * 0.06}>
-                  <Link to={m.path} className="group card relative flex h-full flex-col overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-[0.985]">
-                    <div className="relative">
-                      <RealPhoto id={modulePhotos[m.id].card} className="aspect-[16/9] w-full rounded-t-[1.2rem]" sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" zoom />
-                      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(8,17,30,.55)_0%,rgba(8,17,30,0)_45%,rgba(8,17,30,.55)_100%)]" />
-                      <span className="absolute left-4 top-3 font-display text-4xl font-bold text-white drop-shadow-[0_2px_10px_rgba(0,0,0,.55)]">{m.num}</span>
-                      {isPhotoReady(photoById[modulePhotos[m.id].card]) && (
-                        <span className="absolute bottom-3 left-4 right-16 truncate text-[11px] font-semibold text-white/85 drop-shadow">{tr(photoById[modulePhotos[m.id].card].location)}</span>
-                      )}
-                      <span className="absolute right-4 top-4 grid size-10 place-items-center rounded-xl text-white shadow-lg" style={{ background: m.accent }}>
+                  <Link
+                    to={m.path}
+                    className="group relative isolate flex h-full min-h-[400px] flex-col justify-between overflow-hidden rounded-[1.4rem] border border-white/10 text-white shadow-[0_18px_40px_-18px_rgba(5,11,20,.6)] transition duration-500 hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-20px_rgba(5,11,20,.75)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-glacier active:scale-[0.985] md:min-h-[440px]"
+                  >
+                    <RealPhoto id={modulePhotos[m.id].card} className="!absolute inset-0 -z-10" sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" zoom overlay="card" />
+                    <div className="flex items-start justify-between p-5">
+                      <span className="font-display text-5xl font-bold leading-none tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,.5)]">{m.num}</span>
+                      <span className="grid size-11 place-items-center rounded-2xl text-white shadow-lg ring-1 ring-white/25" style={{ background: m.accent }}>
                         <Icon name={m.icon} />
                       </span>
                     </div>
-                    <div className="flex flex-1 flex-col p-5">
-                      <h3 className="font-display text-lg font-bold leading-snug">{tr(m.title)}</h3>
-                      <p className="mt-2 flex-1 text-sm text-muted">{tr(m.lead)}</p>
-                      <div className="mt-4 flex items-center justify-between">
-                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-2">
-                          <div className="h-full rounded-full transition-all" style={{ width: `${p.pct * 100}%`, background: m.accent }} />
+                    <div className="p-5 pt-0">
+                      <div className="mb-2 inline-flex max-w-full items-center gap-1.5 rounded-full bg-black/35 px-2.5 py-1 text-[11px] font-semibold text-white/90 backdrop-blur">
+                        <MapPin size={12} className="shrink-0" />
+                        <span className="truncate">{tr(photoById[modulePhotos[m.id].card].location)}</span>
+                      </div>
+                      <h3 className="font-display text-xl font-bold leading-snug drop-shadow">{tr(m.title)}</h3>
+                      <p className="mt-2 line-clamp-3 text-sm text-white/80">{tr(m.lead)}</p>
+                      <div className="mt-4 flex items-center gap-3">
+                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/20">
+                          <div className="h-full rounded-full transition-all duration-700" style={{ width: `${p.pct * 100}%`, background: m.accent }} />
                         </div>
-                        <span className="ml-3 text-xs font-bold text-muted">{Math.round(p.pct * 100)}%</span>
+                        <span className="text-xs font-bold text-white/85">{Math.round(p.pct * 100)}%</span>
                       </div>
                     </div>
                   </Link>

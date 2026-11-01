@@ -1,41 +1,33 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { Camera } from 'lucide-react'
-import { useI18n } from '../../hooks/useI18n'
-import { HOME_HERO_PHOTO, isPhotoReady, photoById } from '../../data/images'
+import { HOME_HERO_PHOTO, photoById } from '../../data/images'
+import { usePhotoSource } from '../../hooks/usePhotoSource'
 import { RealPhoto } from './RealPhoto'
 
 /**
  * Full-screen hero background: a real photo of the Tian Shan with slow Ken Burns movement,
- * scroll parallax and a darkening gradient for readable typography.
+ * scroll parallax and a cinematic darkening gradient for readable typography.
  */
 export function HeroPhoto({ id = HOME_HERO_PHOTO, parallax = true }: { id?: string; parallax?: boolean }) {
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 900], [0, parallax ? 180 : 0])
-  const ph = photoById[id]
   return (
-    <div className="absolute inset-0 overflow-hidden bg-navy" aria-hidden={!isPhotoReady(ph)}>
+    <div className="absolute inset-0 overflow-hidden bg-navy">
       <motion.div className="absolute inset-[-4%_0_-12%_0]" style={{ y }}>
-        <RealPhoto id={id} className="h-full w-full !bg-navy" sizes="100vw" priority kenburns quiet overlay="hero" />
+        <RealPhoto id={id} className="h-full w-full !bg-navy" sizes="100vw" priority kenburns overlay="hero" />
       </motion.div>
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_60%,rgba(8,17,30,.55),transparent_60%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_18%_55%,rgba(5,11,20,.6),transparent_62%)]" />
     </div>
   )
 }
 
-/** Author line for the hero photo (licence requirement), or the "photo will be added" note. */
+/** Author line for a hero photo (licence requirement). */
 export function HeroCredit({ id = HOME_HERO_PHOTO, className = '' }: { id?: string; className?: string }) {
-  const { t } = useI18n()
-  const ph = photoById[id]
-  if (!isPhotoReady(ph))
-    return (
-      <span className={`text-[10.5px] font-semibold uppercase tracking-[0.16em] text-white/45 ${className}`}>
-        <Camera size={12} className="mr-1.5 inline -translate-y-px" />
-        {t('photo.pending')}
-      </span>
-    )
+  const state = usePhotoSource(photoById[id], true)
+  if (state.status !== 'ready') return null
+  const item = state.res.items[0]
   return (
-    <a href={ph.sourceUrl} target="_blank" rel="noreferrer" className={`text-[10.5px] text-white/60 hover:text-white ${className}`}>
-      © {ph.photographer} · {ph.source} · {ph.license}
+    <a href={item.sourceUrl} target="_blank" rel="noreferrer" className={`text-[10.5px] text-white/60 hover:text-white ${className}`}>
+      © {item.photographer} · {item.source} · {item.license}
     </a>
   )
 }

@@ -1,7 +1,35 @@
 import { ExternalLink } from 'lucide-react'
 import { sources } from '../data/sources'
-import { isPhotoReady, photos } from '../data/images'
+import { photos, type Photo } from '../data/images'
+import { usePhotoSource } from '../hooks/usePhotoSource'
+import { useNearViewport } from '../components/media/RealPhoto'
 import { useI18n } from '../hooks/useI18n'
+
+function CreditRow({ ph }: { ph: Photo }) {
+  const { tr } = useI18n()
+  const [ref, near] = useNearViewport<HTMLDivElement>()
+  const state = usePhotoSource(ph, near)
+  if (state.status === 'none') return null
+  const item = state.status === 'ready' ? state.res.items[0] : undefined
+  return (
+    <div ref={ref} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-2.5">
+      <span className="font-semibold">{tr(ph.title)}</span>
+      <span className="text-xs text-muted">
+        {item ? (
+          <>
+            © {item.photographer} ·{' '}
+            <a href={item.sourceUrl} target="_blank" rel="noreferrer" className="text-glacier hover:underline">
+              {item.source}
+            </a>{' '}
+            · {item.license}
+          </>
+        ) : (
+          '…'
+        )}
+      </span>
+    </div>
+  )
+}
 
 export default function SourcesPage() {
   const { t, tr } = useI18n()
@@ -41,22 +69,9 @@ export default function SourcesPage() {
         <h2 className="mb-2 font-display text-xl font-bold">{t('photo.credits')}</h2>
         <p className="mb-4 text-sm text-muted">{t('photo.credits.lead')}</p>
         <div className="card divide-y divide-line text-sm">
-          {photos.filter(isPhotoReady).map((ph) => (
-            <div key={ph.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-2.5">
-              <span className="font-semibold">{tr(ph.title)}</span>
-              <span className="text-xs text-muted">
-                © {ph.photographer} ·{' '}
-                <a href={ph.sourceUrl} target="_blank" rel="noreferrer" className="text-glacier hover:underline">
-                  {ph.source}
-                </a>{' '}
-                · {ph.license}
-              </span>
-            </div>
+          {photos.map((ph) => (
+            <CreditRow key={ph.id} ph={ph} />
           ))}
-          <div className="flex justify-between px-4 py-2.5 text-xs text-muted">
-            <span>{t('photo.credits.pending')}</span>
-            <span className="font-bold">{photos.filter((x) => !isPhotoReady(x)).length}</span>
-          </div>
         </div>
       </section>
       <section id="lecture-note" className="mt-10 rounded-2xl border border-amber-400/60 bg-amber-400/10 p-5 text-sm">

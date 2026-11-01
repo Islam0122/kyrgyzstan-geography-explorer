@@ -187,15 +187,9 @@ select:focus-visible {
     background-position: -120% 0;
   }
 }
-/* neutral "photo will be added" slot — intentionally not a landscape drawing */
-.photo-placeholder {
-  --ph-ink: #eef4fa;
-  color: #b9c8d8;
-  background-color: #15243a;
-  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 14px);
-}
-.photo-placeholder--quiet {
-  background-color: #0b1626;
+/* shown only when no real photo can be obtained (offline): calm tone, no icons or text */
+.photo-empty {
+  background: radial-gradient(120% 90% at 30% 20%, #1b2d45 0%, #0d1828 60%, #08111e 100%);
 }
 
 input[type='range'].veg-range {
