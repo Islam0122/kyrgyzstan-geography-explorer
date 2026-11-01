@@ -40,7 +40,7 @@ npm run preview
 * **Климат** — NOAA GHCN-Daily, 14 станций; нормы рассчитаны `scripts/climate_normals.py` (температура 1991–2020 или 1961–1990, осадки 1961–1990, только месяцы с полным рядом). Период и число лет показаны под каждым графиком.
 * **Высотные пояса и карта лесов** — *учебные модели*: классификация ЦМР по границам поясов; для лесов — пояс × районы по литературе × экспозиция склона. В интерфейсе подписаны как схема/модель.
 * Справочные значения (высоты вершин, площадь и глубина Иссык-Куля, длины рек, площади областей) подписаны как «справочно» и вынесены в `/sources`.
-* Изображения — процедурные SVG-иллюстрации (подписаны «Иллюстрация»); реальные фото можно добавить в `src/data/gallery.ts` с указанием автора и лицензии.
+* Изображения — только реальные фотографии природы Кыргызстана. Каталог: `src/data/images.ts` (65 записей: сюжет, место, категория, автор, источник, лицензия). Пока фото не добавлено и не проверено (`status: 'pending'`), вместо него показывается нейтральная заглушка «Фото будет добавлено», и запрос к сети не делается. Список нужных снимков с требованиями — `docs/PHOTOS.md`. Подготовка файлов — `scripts/prepare_photos.py`, проверка каталога — `npm run photos:check`.
 
 Пересборка геоданных (нужны Python 3, numpy, pillow, shapely):
 
@@ -56,14 +56,15 @@ python3 scripts/build_gis.py <каталог natural-earth-geojson> <катал�
 
 ```
 src/
-  components/ layout/ map/ presentation/ charts/ interactive/ quiz/ ui/
+  components/ layout/ map/ media/ (RealPhoto, PhotoGallery, PhotoLightbox, PhotoSkeleton, HeroPhoto) charts/ interactive/ quiz/ ui/
   pages/      HomePage, AtlasPage, GeographyPage … ForestsPage, PresentationPage, QuizPage, …
-  data/       lessons/ (тексты RU/KY), maps/ (GeoJSON + метаданные), quiz/, translations/ (ru.ts, ky.ts), sources.ts, glossary.ts
+  data/       lessons/ (тексты RU/KY), maps/ (GeoJSON + метаданные), quiz/, translations/ (ru.ts, ky.ts), sources.ts, glossary.ts, images.ts (каталог фотографий)
   hooks/      useI18n, useProgress
-  store/      useAppStore (Zustand + persist)
+  store/      useAppStore (Zustand + persist), useLightbox
   types/
-scripts/      build_gis.py, climate_normals.py
+scripts/      build_gis.py, climate_normals.py, prepare_photos.py, check_photos.mjs
 public/rasters/  relief.webp, hillshade.webp, belts.webp, forests.webp, heightmap.png
+public/photos/   geography/ relief/ climate/ water/ vegetation/ forests/ gallery/
 ```
 
 i18n: интерфейс — `data/translations/ru.ts` + `ky.ts` (TypeScript требует перевод каждого ключа); контент — объекты `{ ru, ky }` рядом с данными.

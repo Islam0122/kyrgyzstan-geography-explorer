@@ -161,17 +161,6 @@ select:focus-visible {
   stroke-dasharray: 6 14;
   animation: flow 0.9s linear infinite;
 }
-@keyframes drift {
-  from {
-    transform: translateX(-30%);
-  }
-  to {
-    transform: translateX(130%);
-  }
-}
-.cloud {
-  animation: drift linear infinite;
-}
 @keyframes kenburns {
   0% {
     transform: scale(1.08) translate3d(0, 0, 0);
@@ -182,6 +171,31 @@ select:focus-visible {
 }
 .kenburns {
   animation: kenburns 26s ease-in-out infinite alternate;
+}
+
+/* ── real photos ── */
+.photo-skeleton {
+  background: linear-gradient(100deg, var(--surface-2) 30%, color-mix(in srgb, var(--surface-2) 70%, #ffffff) 50%, var(--surface-2) 70%);
+  background-size: 220% 100%;
+  animation: photo-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes photo-shimmer {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+/* neutral "photo will be added" slot — intentionally not a landscape drawing */
+.photo-placeholder {
+  --ph-ink: #eef4fa;
+  color: #b9c8d8;
+  background-color: #15243a;
+  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 14px);
+}
+.photo-placeholder--quiet {
+  background-color: #0b1626;
 }
 
 input[type='range'].veg-range {

@@ -3,6 +3,7 @@ import { GeoMap } from '../components/map/GeoMap'
 import { Legends } from '../components/map/Legends'
 import { ModuleLayout } from '../components/ui/ModuleLayout'
 import { SceneCard } from '../components/ui/SectionBlock'
+import { beltPhotos } from '../data/images'
 import { belts, vegetationLesson } from '../data/lessons/vegetation'
 import { useI18n } from '../hooks/useI18n'
 import type { Belt } from '../data/lessons/vegetation'
@@ -11,7 +12,7 @@ function BeltCard({ b }: { b: Belt }) {
   const { t, tr } = useI18n()
   return (
     <div className="space-y-3">
-      <SceneCard kind={b.scene} seed={`vb-${b.id}`} />
+      <SceneCard id={beltPhotos[b.id]} kind={b.scene} seed={`vb-${b.id}`} group={Object.values(beltPhotos)} />
       <div className="card p-4 text-sm">
         <div className="mb-1 text-[11px] font-bold uppercase text-muted">{t('veg.range')}</div>
         <div className="font-bold">

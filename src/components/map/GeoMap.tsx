@@ -31,6 +31,7 @@ const TILES: Record<Exclude<BaseId, 'relief' | 'none'>, { url: string; attr: str
   osm: { url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attr: '© OpenStreetMap contributors', maxZoom: 18 },
   topo: { url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', attr: '© OpenStreetMap contributors, SRTM | © OpenTopoMap (CC-BY-SA)', maxZoom: 16 },
   sat: { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr: 'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics', maxZoom: 17 },
+  terrain: { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}', attr: 'Tiles © Esri — Source: USGS, Esri, TANA, DeLorme, NPS', maxZoom: 13 },
 }
 
 function lineMid(coords: number[][]) {

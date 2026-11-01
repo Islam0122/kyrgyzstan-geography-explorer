@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "photos:check": "node scripts/check_photos.mjs",
+    "photos:list": "node scripts/check_photos.mjs --list"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.3.0",

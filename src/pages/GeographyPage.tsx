@@ -5,7 +5,7 @@ import { GeoMap } from '../components/map/GeoMap'
 import { InfoPanel } from '../components/map/InfoPanel'
 import type { Selection } from '../components/map/layers'
 import { ModuleLayout } from '../components/ui/ModuleLayout'
-import { Scene } from '../components/ui/Scene'
+import { RealPhoto } from '../components/media/RealPhoto'
 import { demStats } from '../data/maps'
 import { geographyLesson } from '../data/lessons/geography'
 import { places, regionInfo } from '../data/lessons/geoObjects'
@@ -97,7 +97,7 @@ export default function GeographyPage() {
         ),
         capital: (
           <div className="card grid overflow-hidden md:grid-cols-2">
-            <Scene kind="city" seed="bishkek-big" className="aspect-[16/10] h-full w-full" animated />
+            <RealPhoto id="geo-bishkek-ala-too" className="aspect-[16/10] h-full min-h-56 w-full" lightbox credit zoom />
             <div className="p-5">
               <div className="font-display text-xl font-bold">{tr({ ru: 'Бишкек', ky: 'Бишкек' })}</div>
               <ul className="mt-3 space-y-2 text-sm">

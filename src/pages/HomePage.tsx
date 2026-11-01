@@ -2,14 +2,15 @@ import { motion } from 'framer-motion'
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, ChevronDown, Compass, Lightbulb, MonitorPlay, Sparkles } from 'lucide-react'
-import { HeroLandscape } from '../components/interactive/HeroLandscape'
+import { HeroCredit, HeroPhoto } from '../components/media/HeroPhoto'
+import { RealPhoto } from '../components/media/RealPhoto'
 import { KgOutline } from '../components/map/KgOutline'
 import { Icon } from '../components/ui/Icon'
 import { ProgressRing } from '../components/ui/ProgressRing'
 import { Reveal } from '../components/ui/Reveal'
-import { Scene } from '../components/ui/Scene'
 import { funFacts, headlineStats } from '../data/facts'
 import { modules } from '../data/lessons/modules'
+import { HOME_HERO_STRIP, isPhotoReady, modulePhotos, photoById } from '../data/images'
 import { useI18n } from '../hooks/useI18n'
 import { useProgress } from '../hooks/useProgress'
 
@@ -39,16 +40,16 @@ export default function HomePage() {
     <>
       {/* HERO */}
       <section className="relative -mt-16 flex min-h-[100svh] items-center overflow-hidden pt-16 text-snow">
-        <HeroLandscape />
+        <HeroPhoto />
         <div className="relative mx-auto grid w-full max-w-7xl items-center gap-10 px-4 py-16 md:px-8 lg:grid-cols-[1.25fr_1fr]">
           <div>
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold backdrop-blur">
               <Sparkles size={14} className="text-amber-300" /> {t('hero.badge')}
             </motion.div>
-            <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.15 }} className="text-gradient font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl xl:text-7xl">
+            <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.15 }} className="font-display text-4xl font-bold leading-[1.02] tracking-tight text-white drop-shadow-[0_2px_24px_rgba(0,0,0,.45)] sm:text-5xl md:text-6xl xl:text-[5.25rem]">
               {t('hero.title')}
             </motion.h1>
-            <motion.p initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="mt-6 max-w-2xl text-lg text-white/85 md:text-xl">
+            <motion.p initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="mt-6 max-w-2xl text-lg text-white/90 drop-shadow md:text-xl">
               {t('hero.subtitle')}
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.45 }} className="mt-8 flex flex-wrap gap-3">
@@ -59,6 +60,15 @@ export default function HomePage() {
               <Link to="/presentation" className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-6 py-3.5 font-bold backdrop-blur transition hover:bg-white/20">
                 <MonitorPlay size={20} /> {t('hero.present')}
               </Link>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6 }} className="mt-10 hidden max-w-xl grid-cols-3 gap-3 sm:grid">
+              {HOME_HERO_STRIP.map((id) => (
+                <div key={id} className="overflow-hidden rounded-2xl border border-white/15 shadow-xl">
+                  <RealPhoto id={id} className="aspect-[4/3] w-full" sizes="200px" lightbox={HOME_HERO_STRIP} zoom compact overlay="bottom">
+                    <span className="pointer-events-none absolute bottom-1.5 left-2.5 right-2 truncate text-xs font-bold text-white">{tr(photoById[id].title)}</span>
+                  </RealPhoto>
+                </div>
+              ))}
             </motion.div>
           </div>
           <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.4 }} className="rounded-3xl border border-white/15 bg-navy/30 p-4 pt-10 backdrop-blur-md md:p-6 md:pt-12">
@@ -75,6 +85,7 @@ export default function HomePage() {
           {t('hero.scroll')}
           <ChevronDown className="animate-bounce" />
         </a>
+        <HeroCredit className="absolute bottom-3 right-4 hidden sm:block" />
       </section>
 
       <div className="mx-auto max-w-7xl px-4 md:px-8">
@@ -86,11 +97,14 @@ export default function HomePage() {
               const p = prog.perModule[m.id]
               return (
                 <Reveal key={m.id} delay={i * 0.06}>
-                  <Link to={m.path} className="group card relative flex h-full flex-col overflow-hidden transition hover:-translate-y-1 hover:shadow-2xl">
+                  <Link to={m.path} className="group card relative flex h-full flex-col overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-[0.985]">
                     <div className="relative">
-                      <Scene kind={m.scene} seed={`card-${m.id}`} className="aspect-[16/9] w-full transition duration-700 group-hover:scale-105" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-navy/80 to-transparent" />
-                      <span className="absolute left-4 top-4 font-display text-4xl font-bold text-white/90 drop-shadow">{m.num}</span>
+                      <RealPhoto id={modulePhotos[m.id].card} className="aspect-[16/9] w-full rounded-t-[1.2rem]" sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" zoom />
+                      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(8,17,30,.55)_0%,rgba(8,17,30,0)_45%,rgba(8,17,30,.55)_100%)]" />
+                      <span className="absolute left-4 top-3 font-display text-4xl font-bold text-white drop-shadow-[0_2px_10px_rgba(0,0,0,.55)]">{m.num}</span>
+                      {isPhotoReady(photoById[modulePhotos[m.id].card]) && (
+                        <span className="absolute bottom-3 left-4 right-16 truncate text-[11px] font-semibold text-white/85 drop-shadow">{tr(photoById[modulePhotos[m.id].card].location)}</span>
+                      )}
                       <span className="absolute right-4 top-4 grid size-10 place-items-center rounded-xl text-white shadow-lg" style={{ background: m.accent }}>
                         <Icon name={m.icon} />
                       </span>
