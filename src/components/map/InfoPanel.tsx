@@ -216,7 +216,7 @@ export function InfoPanel({ selection, onClose, className = '' }: { selection: S
           aria-live="polite"
         >
           <div className="relative">
-            <RealPhoto id={objectPhotos[r.favId]} scene={r.scene} seed={r.favId} className="aspect-[16/7] w-full" sizes="420px" lightbox credit compact />
+            <RealPhoto id={objectPhotos[r.favId]} scene={r.scene} seed={r.favId} className="aspect-[16/7] w-full" sizes="420px" lightbox credit />
             <div className="absolute right-2 top-2 flex gap-1.5">
               <FavButton id={r.favId} className="glass" />
               {onClose && (

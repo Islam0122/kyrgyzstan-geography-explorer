@@ -3,21 +3,17 @@ import type { L, ModuleId, SceneKind } from '../types'
 /**
  * Central photo catalogue of the course.
  *
- * Every image used anywhere on the site has exactly one entry here. An entry describes the REAL
- * subject that must be photographed (place in Kyrgyzstan, what has to be in the frame) and, once a
- * verified photo is added, its authorship and licence.
+ * Every image used anywhere on the site has exactly one entry here: the REAL subject (place in
+ * Kyrgyzstan, what has to be in the frame), where it is used, and where the picture comes from:
  *
- * Rules:
- *  - `status: 'pending'` → the file is not in the repository yet. Components render a neutral
- *    «Фото будет добавлено» placeholder and make NO network request (no broken links).
- *  - `status: 'ready'` is allowed only when the file exists in `public/<url>` AND `photographer`,
- *    `source`, `sourceUrl` and `license` are filled from the original source page.
- *  - Only photos taken in Kyrgyzstan (exception: species photos may be from the natural range of
- *    the species — then `location` must say where it was really taken).
+ *  1. Local file — `public/photos/<folder>/<id>.webp` with `status: 'ready'` and the credits filled in
+ *     from the original page (`scripts/prepare_photos.py` makes the responsive variants).
+ *  2. Otherwise Wikimedia Commons — `commonsSpecs[id]` describes the search; the visitor's browser
+ *     queries the public Commons API and only accepts free-licensed photographs that are identified
+ *     as the subject in Kyrgyzstan; author / licence / source come from the file's Commons metadata
+ *     (see src/lib/commons.ts). `file` pins one exact Commons file.
  *
- * Files: `public/photos/<folder>/<id>.webp` (1920 px wide) + optional responsive variants
- * `<id>-640.webp`, `<id>-1280.webp` (set `responsive: true`). `scripts/prepare_photos.py` makes all
- * three from an original; `npm run photos:check` validates the catalogue against the files.
+ * Never use photos of other countries as Kyrgyzstan; never invent authorship.
  */
 
 export type PhotoCategory = 'mountains' | 'lakes' | 'rivers' | 'forests' | 'plants' | 'wildlife' | 'valleys' | 'glaciers'
@@ -813,6 +809,95 @@ export const photos: Photo[] = [
     minWidth: 1600,
   }),
 ]
+
+/* ───────────── Wikimedia Commons lookup ───────────── */
+
+/**
+ * How a slot finds its real photo on Wikimedia Commons when no local file is present.
+ * The browser queries the public Commons API; a result is accepted only if
+ *  - it is a JPEG photo of sufficient size and a free licence (CC0 / CC BY / CC BY-SA / PD),
+ *  - its title, description or Commons categories match one of `must` (the subject), and
+ *  - it is identified as Kyrgyzstan (mention of Kyrgyzstan) unless `kgUnique` (the `must` names
+ *    only exist in Kyrgyzstan, e.g. Issyk-Kul, Ala Archa, Arslanbob).
+ * Author, licence and source page are taken from the Commons metadata of the file.
+ * `file` pins one exact Commons file (e.g. 'File:Name.jpg') — preferred once a photo is chosen.
+ */
+export interface CommonsSpec {
+  query: string
+  must?: string[]
+  kgUnique?: boolean
+  file?: string
+}
+
+const Q = (query: string, must?: string[], kgUnique = false): CommonsSpec => ({ query, must, kgUnique })
+
+export const commonsSpecs: Record<string, CommonsSpec> = {
+  'geo-hero-tian-shan': Q('Ala Archa National Park mountains', ['archa', 'арча'], true),
+  'geo-tian-shan-panorama': Q('Tian Shan Kyrgyzstan mountains panorama', ['tian shan', 'tien shan', 'тянь-шань', 'mountain']),
+  'geo-chuy-valley': Q('Chuy Valley Kyrgyzstan', ['chuy', 'chüy', 'chui', 'чуй', 'чүй']),
+  'geo-bishkek-ala-too': Q('Bishkek mountains view', ['bishkek', 'бишкек'], true),
+  'geo-osh-sulaiman': Q('Sulayman Mountain Osh', ['sulay', 'sulaim', 'sulaym', 'сулайман'], true),
+  'geo-talas-valley': Q('Talas valley Kyrgyzstan landscape', ['talas', 'талас']),
+  'geo-fergana-foothills': Q('Jalal-Abad Region landscape Kyrgyzstan', ['jalal', 'джалал', 'жалал']),
+  'geo-naryn-town': Q('Naryn Kyrgyzstan town river', ['naryn', 'нарын']),
+  'relief-ala-archa-peaks': Q('Ala Archa peak glacier', ['archa', 'арча'], true),
+  'relief-khan-tengri': Q('Khan Tengri', ['khan tengri', 'хан-тенгри', 'хан тенгри'], true),
+  'relief-pobeda': Q('Jengish Chokusu Pobeda Peak', ['pobeda', 'jengish', 'победы', 'tomur'], true),
+  'relief-lenin-alay': Q('Lenin Peak Alay Valley', ['lenin', 'ленин', 'alay', 'алай']),
+  'relief-gorge': Q('Barskoon gorge', ['barskoon', 'barskaun', 'барскоон'], true),
+  'relief-syrt': Q('Arabel plateau Kyrgyzstan', ['arabel', 'арабель', 'syrt', 'сырт']),
+  'relief-at-bashy': Q('At-Bashy valley Kyrgyzstan', ['bashy', 'bashi', 'башы', 'баши']),
+  'relief-moraine': Q('Ala Archa glacier moraine', ['archa', 'арча', 'glacier', 'moraine'], false),
+  'relief-red-rocks': Q('Skazka canyon Issyk-Kul', ['skazka', 'fairy tale', 'сказка'], false),
+  'climate-winter-peaks': Q('Kyrgyzstan mountains winter snow', ['snow', 'winter', 'зима', 'снег']),
+  'climate-clouds': Q('Kyrgyzstan mountains clouds', ['cloud', 'облак']),
+  'climate-storm': Q('Kyrgyzstan valley storm clouds', ['cloud', 'storm', 'rain', 'облак']),
+  'climate-summer-valley': Q('Suusamyr valley', ['suusamyr', 'суусамыр'], true),
+  'climate-winter-valley': Q('Kyrgyzstan valley winter snow', ['winter', 'snow', 'зима']),
+  'climate-issyk-kul-shore': Q('Cholpon-Ata Issyk-Kul', ['cholpon', 'чолпон'], true),
+  'climate-chatyr-kul': Q('Chatyr-Kul lake', ['chatyr', 'chatir', 'чатыр'], true),
+  'water-issyk-kul': Q('Issyk-Kul lake mountains', ['issyk', 'issyq', 'иссык', 'ысык'], true),
+  'water-issyk-kul-south': Q('Issyk-Kul south shore', ['issyk', 'иссык', 'ысык'], true),
+  'water-son-kul': Q('Song-Kul lake', ['song-k', 'son-k', 'song k', 'son k', 'songköl', 'сон-куль', 'соң-көл'], true),
+  'water-sary-chelek': Q('Sary-Chelek lake', ['chelek', 'челек'], true),
+  'water-ala-kul': Q('Ala-Kul lake Karakol', ['ala-kul', 'ala kul', 'alakul', 'ала-куль', 'ала-көл'], true),
+  'water-toktogul': Q('Toktogul reservoir', ['toktogul', 'токтогул'], true),
+  'water-naryn-river': Q('Naryn River Kyrgyzstan', ['naryn', 'нарын']),
+  'water-naryn-gorge': Q('Naryn river canyon gorge', ['naryn', 'нарын']),
+  'water-chu-river': Q('Chu River Boom gorge Kyrgyzstan', ['chu river', 'chüy river', 'chuy river', 'boom', 'река чу']),
+  'water-glacial-river': Q('Ala Archa river', ['archa', 'арча'], true),
+  'water-waterfall': Q('Barskoon waterfall', ['waterfall', 'водопад'], false),
+  'water-inylchek': Q('Inylchek glacier', ['inylchek', 'engilchek', 'enilchek', 'иныльчек', 'инылчек'], true),
+  'water-ak-sai-glacier': Q('Ak-Sai glacier Ala Archa', ['ak-sai', 'ak sai', 'aksai', 'ак-сай'], false),
+  'water-petrov-glacier': Q('Petrov glacier Kyrgyzstan', ['petrov', 'петров']),
+  'veg-zonation': Q('Jeti-Oguz valley spruce forest', ['oguz', 'ögüz', 'огуз', 'өгүз'], true),
+  'veg-semi-desert': Q('Batken Region landscape', ['batken', 'баткен'], true),
+  'veg-steppe': Q('Kochkor steppe Kyrgyzstan', ['steppe', 'степ', 'kochkor', 'кочкор']),
+  'veg-jailoo': Q('jailoo Kyrgyzstan pasture', ['jailoo', 'jayloo', 'pasture', 'жайлоо', 'пастбищ']),
+  'veg-alpine-meadow': Q('alpine meadow flowers Kyrgyzstan', ['meadow', 'flower', 'луг', 'цвет']),
+  'veg-spring-valley': Q('poppies Kyrgyzstan', ['poppy', 'poppies', 'papaver', 'мак']),
+  'veg-tulips': Q('Tulipa Kyrgyzstan', ['tulipa', 'tulip', 'тюльпан']),
+  'veg-edelweiss': Q('Leontopodium Kyrgyzstan', ['leontopodium', 'edelweiss', 'эдельвейс']),
+  'veg-eremurus': Q('Eremurus Kyrgyzstan', ['eremurus', 'эремурус']),
+  'veg-nival': Q('Kyrgyzstan high mountains snow rocks glacier', ['glacier', 'snow', 'ледник']),
+  'forest-juniper-woodland': Q('juniper forest Kyrgyzstan', ['juniper', 'juniperus', 'арча', 'можжевел']),
+  'forest-juniper-tree': Q('Juniperus Kyrgyzstan', ['juniper', 'juniperus', 'арча', 'можжевел']),
+  'forest-spruce': Q('Picea schrenkiana Kyrgyzstan forest', ['picea', 'spruce', 'ель', 'ели']),
+  'forest-spruce-tree': Q('Picea schrenkiana', ['schrenk', 'шренк'], false),
+  'forest-fir': Q('Abies semenovii', ['semenovii', 'семёнова', 'семенова'], true),
+  'forest-arslanbob': Q('Arslanbob walnut forest', ['arslanbob', 'arstanbap', 'арсланбоб', 'арстанбап'], true),
+  'forest-walnut-tree': Q('Arslanbob walnut tree', ['walnut', 'juglans', 'орех', 'жаңгак']),
+  'forest-deciduous': Q('Kyrgyzstan autumn trees river', ['autumn', 'fall', 'осен', 'poplar', 'birch']),
+  'gal-snow-leopard': Q('snow leopard Kyrgyzstan', ['snow leopard', 'panthera uncia', 'ирбис', 'барс']),
+  'gal-argali': Q('Ovis ammon Kyrgyzstan', ['argali', 'ovis ammon', 'архар']),
+  'gal-ibex': Q('Capra sibirica Kyrgyzstan', ['ibex', 'capra', 'козёл', 'козел', 'теке']),
+  'gal-marmot': Q('marmot Kyrgyzstan', ['marmot', 'marmota', 'сурок', 'суур']),
+  'gal-golden-eagle': Q('golden eagle Kyrgyzstan', ['eagle', 'aquila', 'беркут', 'бүркүт']),
+  'gal-yaks': Q('yaks Kyrgyzstan', ['yak', 'bos grunniens', 'як', 'топоз']),
+  'gal-horses-jailoo': Q('horses Song-Kul', ['horse', 'лошад', 'жылкы']),
+  'gal-jeti-oguz': Q('Jeti-Oguz rocks', ['oguz', 'ögüz', 'огуз', 'өгүз'], true),
+  'gal-kok-moinok': Q('Kok-Moinok', ['moinok', 'мойнок'], true),
+}
 
 export const photoById: Record<string, Photo> = Object.fromEntries(photos.map((x) => [x.id, x]))
 

@@ -16,7 +16,7 @@ export function ModuleHero({ m }: { m: ModuleMeta }) {
   return (
     <header className="relative overflow-hidden rounded-b-[2rem] text-snow">
       <div className="absolute inset-0">
-        <RealPhoto id={modulePhotos[m.id].hero} className="h-full w-full !bg-navy" sizes="100vw" priority kenburns quiet />
+        <RealPhoto id={modulePhotos[m.id].hero} className="h-full w-full !bg-navy" sizes="100vw" priority kenburns />
         <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/70 to-navy/25" />
       </div>
       <div className="relative mx-auto max-w-6xl px-4 pb-10 pt-16 md:px-8 md:pb-14 md:pt-24">

@@ -5,7 +5,7 @@
 import { existsSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
-const { photos, photoById, modulePhotos, sectionPhotos, beltPhotos, forestTypePhotos, objectPhotos, scenePhotos, HOME_HERO_PHOTO, HOME_HERO_STRIP } = await import('../src/data/images.ts')
+const { photos, commonsSpecs, photoById, modulePhotos, sectionPhotos, beltPhotos, forestTypePhotos, objectPhotos, scenePhotos, HOME_HERO_PHOTO, HOME_HERO_STRIP } = await import('../src/data/images.ts')
 
 const errors = []
 const ids = new Set()
@@ -13,6 +13,7 @@ for (const p of photos) {
   if (ids.has(p.id)) errors.push(`duplicate id ${p.id}`)
   ids.add(p.id)
   if (p.url !== `photos/${p.folder}/${p.id}.webp`) errors.push(`${p.id}: url must be photos/${p.folder}/${p.id}.webp`)
+  if (p.status !== 'ready' && !commonsSpecs[p.id]) errors.push(`${p.id}: no local file and no Commons search spec`)
   for (const f of p.fallbacks ?? []) if (!photoById[f]) errors.push(`${p.id}: unknown fallback ${f}`)
   if (p.status === 'ready') {
     for (const k of ['photographer', 'source', 'sourceUrl', 'license']) if (!p[k]) errors.push(`${p.id}: ready but ${k} is empty`)
@@ -32,6 +33,7 @@ const refs = [
   ...Object.values(objectPhotos),
   ...Object.values(scenePhotos).flat(),
 ]
+for (const k of Object.keys(commonsSpecs)) if (!photoById[k]) errors.push(`commonsSpecs: unknown id ${k}`)
 for (const r of refs) if (!photoById[r]) errors.push(`reference to unknown photo id ${r}`)
 const cards = Object.values(modulePhotos).map((m) => m.card)
 if (new Set(cards).size !== cards.length) errors.push('module cards must use different photos')
@@ -42,7 +44,7 @@ if (process.argv.includes('--list')) {
   pending.forEach((p, i) => console.log(`| ${i + 1} | \`${p.id}\` → \`public/${p.url}\` | ${p.category} | **${p.title.ru}.** ${p.brief.ru} | ${p.location.ru} | ${p.aspect} | ${p.minWidth}px |`))
 } else {
   const ready = photos.filter((p) => p.status === 'ready').length
-  console.log(`photos: ${photos.length} entries, ${ready} ready, ${photos.length - ready} pending (placeholder)`)
+  console.log(`photos: ${photos.length} entries, ${ready} local files, ${photos.length - ready} resolved from Wikimedia Commons at runtime`)
   console.log(`references checked: ${refs.length}`)
 }
 if (errors.length) {
