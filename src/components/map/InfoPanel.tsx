@@ -8,7 +8,8 @@ import { moduleById } from '../../data/lessons/modules'
 import { useI18n } from '../../hooks/useI18n'
 import type { L as Lt, ModuleId, SceneKind } from '../../types'
 import { FavButton } from '../ui/FavButton'
-import { Scene } from '../ui/Scene'
+import { RealPhoto } from '../media/RealPhoto'
+import { objectPhotos } from '../../data/images'
 import type { Selection } from './layers'
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -215,8 +216,7 @@ export function InfoPanel({ selection, onClose, className = '' }: { selection: S
           aria-live="polite"
         >
           <div className="relative">
-            <Scene kind={r.scene} seed={r.favId} className="aspect-[16/7] w-full" />
-            <span className="absolute bottom-1 left-2 rounded bg-black/40 px-1.5 text-[10px] text-white">{t('common.illustration')}</span>
+            <RealPhoto id={objectPhotos[r.favId]} scene={r.scene} seed={r.favId} className="aspect-[16/7] w-full" sizes="420px" lightbox credit compact />
             <div className="absolute right-2 top-2 flex gap-1.5">
               <FavButton id={r.favId} className="glass" />
               {onClose && (

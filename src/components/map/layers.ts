@@ -1,6 +1,6 @@
 import type { UIKey } from '../../data/translations/ru'
 
-export type BaseId = 'relief' | 'osm' | 'topo' | 'sat' | 'none'
+export type BaseId = 'relief' | 'osm' | 'topo' | 'sat' | 'terrain' | 'none'
 export type OverlayId =
   | 'admin'
   | 'cities'
@@ -23,6 +23,7 @@ export const BASES: { id: BaseId; label: UIKey }[] = [
   { id: 'osm', label: 'map.base.osm' },
   { id: 'topo', label: 'map.base.topo' },
   { id: 'sat', label: 'map.base.sat' },
+  { id: 'terrain', label: 'map.base.terrain' },
   { id: 'none', label: 'map.base.none' },
 ]
 

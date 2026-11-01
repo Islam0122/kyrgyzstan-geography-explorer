@@ -8,18 +8,21 @@ import { Legends } from '../components/map/Legends'
 import type { Selection } from '../components/map/layers'
 import { Icon } from '../components/ui/Icon'
 import { ModuleLayout } from '../components/ui/ModuleLayout'
-import { Scene } from '../components/ui/Scene'
+import { RealPhoto } from '../components/media/RealPhoto'
+import { forestTypePhotos } from '../data/images'
 import { forestTypes, forestsLesson, protectReasons, type ForestType } from '../data/lessons/forests'
 import { placeById } from '../data/lessons/geoObjects'
 import { useI18n } from '../hooks/useI18n'
+
+/** all forest photos, browsable in the lightbox */
+const FOREST_GROUP = ['forest-juniper-woodland', 'forest-juniper-tree', 'forest-spruce', 'forest-spruce-tree', 'forest-fir', 'forest-arslanbob', 'forest-walnut-tree', 'forest-deciduous']
 
 function ForestCard({ f, onSite }: { f: ForestType; onSite: (id: string) => void }) {
   const { t, tr } = useI18n()
   return (
     <div className="card overflow-hidden">
       <div className="relative">
-        <Scene kind={f.scene} seed={`forest-${f.id}`} className="aspect-[16/7] w-full" animated />
-        <span className="absolute bottom-1 left-2 rounded bg-black/40 px-1.5 text-[10px] text-white">{t('common.illustration')}</span>
+        <RealPhoto id={forestTypePhotos[f.id]} scene={f.scene} seed={`forest-${f.id}`} className="aspect-[16/7] w-full" sizes="(min-width: 1024px) 60vw, 100vw" lightbox={FOREST_GROUP} credit zoom />
         {f.id === 'fir' && (
           <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-red-600 px-2.5 py-1 text-xs font-bold text-white">
             <ShieldAlert size={13} /> {tr({ ru: 'Красная книга КР', ky: 'КР Кызыл китеби' })}

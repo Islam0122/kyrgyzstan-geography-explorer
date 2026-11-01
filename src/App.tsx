@@ -1,6 +1,7 @@
 import { lazy, Suspense, Component, type ReactNode } from 'react'
 import { HashRouter, Link, Route, Routes } from 'react-router-dom'
 import { Layout, ThemeSync } from './components/layout/Layout'
+import { PhotoLightbox } from './components/media/PhotoLightbox'
 import { useI18n } from './hooks/useI18n'
 import HomePage from './pages/HomePage'
 
@@ -82,6 +83,7 @@ export default function App() {
   return (
     <HashRouter>
       <ThemeSync />
+      <PhotoLightbox />
       <Routes>
         <Route path="/presentation" element={<Boundary><Suspense fallback={<Loading />}><PresentationPage /></Suspense></Boundary>} />
         <Route element={<Layout />}>

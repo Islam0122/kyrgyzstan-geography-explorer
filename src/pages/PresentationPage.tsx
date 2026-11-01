@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, GraduationCap, Maximize, Minimize, X } from 'lucide-react'
 import { ClimogramChart } from '../components/charts/ClimateCharts'
-import { HeroLandscape } from '../components/interactive/HeroLandscape'
+import { HeroPhoto } from '../components/media/HeroPhoto'
 import { MountainSection } from '../components/interactive/MountainSection'
 import { Relief3D } from '../components/interactive/Relief3D'
 import { GeoMap } from '../components/map/GeoMap'
@@ -88,7 +88,7 @@ export default function PresentationPage() {
       id: 'title',
       render: () => (
         <div className="relative grid h-full place-items-center overflow-hidden text-center text-snow">
-          <HeroLandscape />
+          <HeroPhoto parallax={false} />
           <div className="relative px-6">
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-sm font-bold uppercase tracking-[0.3em] text-white/70">
               Kyrgyzstan Geography Explorer

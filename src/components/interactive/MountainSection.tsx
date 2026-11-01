@@ -3,7 +3,8 @@ import { useMemo, useState } from 'react'
 import { Thermometer } from 'lucide-react'
 import { belts, southShift, type Belt } from '../../data/lessons/vegetation'
 import { useI18n } from '../../hooks/useI18n'
-import { Scene } from '../ui/Scene'
+import { RealPhoto } from '../media/RealPhoto'
+import { beltPhotos } from '../../data/images'
 
 const MAX = 7000
 const MIN = 400
@@ -115,8 +116,7 @@ export function MountainSection({ initial = 2300 }: { initial?: number }) {
         <AnimatePresence mode="wait">
           <motion.div key={belt.id} initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} className="border-t border-line md:border-l md:border-t-0">
             <div className="relative">
-              <Scene kind={belt.scene} seed={`belt-${belt.id}`} className="aspect-[16/8] w-full" animated />
-              <span className="absolute bottom-1 left-2 rounded bg-black/40 px-1.5 text-[10px] text-white">{t('common.illustration')}</span>
+              <RealPhoto id={beltPhotos[belt.id]} scene={belt.scene} seed={`belt-${belt.id}`} className="aspect-[16/8] w-full" lightbox={Object.values(beltPhotos)} credit zoom />
             </div>
             <div className="space-y-3 p-5">
               <div>

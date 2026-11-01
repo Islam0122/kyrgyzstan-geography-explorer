@@ -1,5 +1,6 @@
 import { ExternalLink } from 'lucide-react'
 import { sources } from '../data/sources'
+import { isPhotoReady, photos } from '../data/images'
 import { useI18n } from '../hooks/useI18n'
 
 export default function SourcesPage() {
@@ -36,6 +37,28 @@ export default function SourcesPage() {
           </div>
         </section>
       ))}
+      <section id="photos" className="mt-10 scroll-mt-24">
+        <h2 className="mb-2 font-display text-xl font-bold">{t('photo.credits')}</h2>
+        <p className="mb-4 text-sm text-muted">{t('photo.credits.lead')}</p>
+        <div className="card divide-y divide-line text-sm">
+          {photos.filter(isPhotoReady).map((ph) => (
+            <div key={ph.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-2.5">
+              <span className="font-semibold">{tr(ph.title)}</span>
+              <span className="text-xs text-muted">
+                © {ph.photographer} ·{' '}
+                <a href={ph.sourceUrl} target="_blank" rel="noreferrer" className="text-glacier hover:underline">
+                  {ph.source}
+                </a>{' '}
+                · {ph.license}
+              </span>
+            </div>
+          ))}
+          <div className="flex justify-between px-4 py-2.5 text-xs text-muted">
+            <span>{t('photo.credits.pending')}</span>
+            <span className="font-bold">{photos.filter((x) => !isPhotoReady(x)).length}</span>
+          </div>
+        </div>
+      </section>
       <section id="lecture-note" className="mt-10 rounded-2xl border border-amber-400/60 bg-amber-400/10 p-5 text-sm">
         <h2 className="mb-2 font-display text-lg font-bold">{t('sources.lecture')}</h2>
         <p>

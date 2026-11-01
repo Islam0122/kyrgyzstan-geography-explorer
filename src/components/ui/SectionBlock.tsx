@@ -5,7 +5,8 @@ import { useI18n } from '../../hooks/useI18n'
 import { useAppStore } from '../../store/useAppStore'
 import type { L, ModuleId } from '../../types'
 import { Reveal } from './Reveal'
-import { Scene } from './Scene'
+import { RealPhotoCard } from '../media/RealPhoto'
+import { sectionPhotos } from '../../data/images'
 import { SourceChips } from './SourceChips'
 
 /**
@@ -52,7 +53,8 @@ export function SectionBlock({
     }
   }, [read, mark, module, id])
 
-  const showAside = aside ?? (block?.scene ? <SceneCard kind={block.scene} seed={`${module}-${id}`} /> : null)
+  const photoId = sectionPhotos[`${module}:${id}`]
+  const showAside = aside ?? (photoId || block?.scene ? <SceneCard id={photoId} kind={block?.scene} seed={`${module}-${id}`} /> : null)
 
   return (
     <section ref={ref} id={id} className="scroll-mt-24 py-10 md:py-14">
@@ -92,15 +94,7 @@ export function SectionBlock({
   )
 }
 
-export function SceneCard({ kind, seed, caption }: { kind: Block['scene'] & string; seed?: string; caption?: string }) {
-  const { t } = useI18n()
-  return (
-    <figure className="card overflow-hidden">
-      <Scene kind={kind} seed={seed} className="aspect-[5/3] w-full" animated />
-      <figcaption className="px-4 py-2 text-[11px] text-muted">
-        {caption ? `${caption} · ` : ''}
-        {t('common.illustration')}
-      </figcaption>
-    </figure>
-  )
+/** Real photo next to a lesson section (click → lightbox). */
+export function SceneCard({ id, kind, seed, group }: { id?: string; kind?: Block['scene']; seed?: string; group?: string[] }) {
+  return <RealPhotoCard id={id} scene={kind} seed={seed} group={group} />
 }
